@@ -11,12 +11,29 @@ exports.init = app => {
     return res.status(200).send(users);
   });
 
+  app.delete("/users/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    if (!userId) {
+      return res.status(400).send({
+        text: "Bad request"
+      });
+    }
+
+    try {
+      await User.deleteOne({ _id: userId });
+      return res.status(200).redirect("/users");
+    } catch (error) {
+      return res.status(500).send({ error });
+    }
+  });
+
   app.get("/posts", async (req, res) => {
     const posts = await Post.find();
     return res.status(200).send(posts);
   });
 
-  app.get("/post/:id", async (req, res) => {
+  app.get("/posts/:id", async (req, res) => {
     const postId = req.params.id;
     const post = await Post.findOne({ _id: { $in: [postId] } });
     return res.status(200).send(`Only One post : ${post}`);
@@ -57,12 +74,17 @@ exports.init = app => {
   });
 
   app.delete("/posts/:id", async (req, res) => {
+    const postId = req.params.id;
+
+    if (!postId) {
+      return res.status(400).send({
+        text: "Bad request"
+      });
+    }
+
     try {
-      if (req.params.id) {
-        const postId = req.params.id;
-        await Post.deleteOne({ _id: postId });
-        return res.status(200).redirect("/posts");
-      }
+      await Post.deleteOne({ _id: postId });
+      return res.status(200).redirect("/posts");
     } catch (error) {
       return res.status(500).send({ error });
     }
@@ -83,7 +105,7 @@ exports.init = app => {
       const findUser = await User.findOne({ email: { $in: [email] } });
       if (findUser) {
         return res.status(405).send({
-          text: "User already exist"
+          text: "User already exists"
         });
       }
     } catch (error) {
@@ -143,13 +165,13 @@ exports.init = app => {
           req.session.token = token;
           return res.status(200).send({
             token: req.session.token,
-            text: "Succes Authentication"
+            text: "Authentication successful"
           });
         }
       });
     } catch (error) {
       return res.status(404).send({
-        text: "User's not exist"
+        text: "User does not exist"
       });
     }
   });
