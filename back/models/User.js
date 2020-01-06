@@ -5,9 +5,10 @@ const jwt = require("jwt-simple");
 const config = require("../config/config");
 
 const userShema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, lowercase: true, required: true },
-  password: { type: String, required: true }
+  username: { type: String, required: true },
+  email: { type: String, lowercase: true, required: true, unique: true },
+  password: { type: String, required: true },
+  favorites: { type: Array }
 });
 
 userShema.methods = {

@@ -80,7 +80,9 @@ describe("POST/signup", () => {
   it("Should respond with succes when a user signed up", async () => {
     // User déja existant car ajouté ds le test, il faut le supprimer au prealable
     const users = await request.get("/users");
-    const userId = users.body[users.body.length - 1]["_id"];
+    const user = users.body.filter(user => user.email === "marco@gmail.com");
+    const userId = user[0]._id;
+    console.log(userId);
 
     await request.delete(`/users/${userId}`).send();
 
@@ -91,7 +93,7 @@ describe("POST/signup", () => {
     });
 
     expect(response.statusCode).toBe(201);
-    expect(response.body.text).toBe("Succes, new user saved");
+    expect(response.body.text).toBe("New user saved");
   });
 
   it("Should return error when empty data", async () => {

@@ -1,16 +1,6 @@
 import React from "react";
-import { StyleSheet } from "react-native";
-import PostsList from "./PostsList";
+import Navigation from "./Navigation";
 
 export default function App() {
-  return <PostsList style={styles.container} />;
+  return <Navigation />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center"
-  }
-});
