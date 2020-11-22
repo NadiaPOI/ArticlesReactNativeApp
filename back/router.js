@@ -11,6 +11,40 @@ exports.init = app => {
     return res.status(200).send(users);
   });
 
+  app.patch("/users/:id", async (req, res) => {
+    const userEmail = sanitize(req.params.id);
+    const url = sanitize(req.body.url);
+
+    try {
+      const user = await User.findOne({ _id: { $in: [userEmail] } });
+
+      if (url != null) {
+        const post = { url, ...(await getMetaProperties(url)) };
+        const findedUrl = user.favorites.find(post => post.url === url);
+
+        if (findedUrl) {
+          return res.status(405).send({
+            text: "Post already exists"
+          });
+        } else {
+          user.favorites.push(post);
+        }
+      }
+
+      try {
+        const updatedUser = await user.save();
+        return res.status(201).send({
+          text: "Post added to your favorites",
+          user: updatedUser
+        });
+      } catch (error) {
+        return res.status(500).send({ error });
+      }
+    } catch (error) {
+      return res.status(500).send({ error });
+    }
+  });
+
   app.delete("/users/:id", async (req, res) => {
     const userId = req.params.id;
 
@@ -129,8 +163,8 @@ exports.init = app => {
           const userSaved = await user.save();
 
           return res.status(201).send({
-            text: "Succes, new user saved",
-            token: userSaved.getToken(userSaved)
+            text: "New user saved",
+            user: userSaved
           });
         });
       });
@@ -161,10 +195,8 @@ exports.init = app => {
         }
 
         if (samePassword) {
-          const token = findUser.getToken(findUser);
-          req.session.token = token;
           return res.status(200).send({
-            token: req.session.token,
+            user: findUser,
             text: "Authentication successful"
           });
         }
